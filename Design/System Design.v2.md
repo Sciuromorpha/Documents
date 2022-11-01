@@ -1,19 +1,49 @@
 # 系统设计
 
+```mermaid
+graph LR
+  User--Upload-->Document
+  User--Archive-->Meta
+  User--Query-->Meta
+  User--Read-->Document
+  subgraph Core
+    Meta-. Ref .->Document
+    Task
+  end
+  subgraph SubService
+    Grabber-->Document
+    Document-->Parser-->Meta
+    Meta-->Filter-->Task-->Scheduler
+    Scheduler-.->Grabber
+    Scheduler-.->Parser
+    Scheduler-.->Filter
+  end
+```
+
+1. 系统基本存储/检索单位为 `元数据` (Meta) ，它是一个将 `原始资料` （Document)（HTML/DOC/PDF/IMAGE/VIDEO/...) 经过系统处理、解析、摘要之后生成的一份 Key/Value 字典；
+2. `Meta` 数据可以包含其它 `Meta`/`Document` 的关联引用；
+3. `Document` 包含抓取工具对一个 `原始 URL` 的抓取原始结果；
+4. 分析工具对 `Document` 进行解析并生成/更新对应的 `Meta` 数据；
+5. 系统由 `Core` 服务和可扩充的 `Sub Service`(下文简称 `Service`)共同工作；
+6. `Core` 负责基本的 `Meta` `Document` 和 `Task` 数据相关服务；
+7. `Service` 负责根据服务自身设计范围完成子项任务；
+8. `Meta` 、 `Document` 和 `Task` 在创建、 修订、删除等操作前后，会向消息管线发送异步消息，各个 `Service` 可以订阅；
+9. `Task` 集中设计原因：服务之间可以通过该方式进行异步互相调用；同时服务自身可以在升降版本的时候有效管理断点；
+
 ## Data Flow
 
 ```mermaid
 graph TD
   subgraph Core
     subgraph meta
-        Create--Meta-->DB-->Publish
-        Update--Meta-->DB
-        Merge--Meta-->DB 
-        DB-->Query
+        Create--Meta-->Meta-->Publish
+        Update--Meta-->Meta
+        Merge--Meta-->Meta
+        Meta-->Query
     end
     subgraph storage
-        Write--Document-->Storage
-        Storage-->Access
+        Write-->Document
+        Document-->Access
     end
     subgraph register
         RegisterService
@@ -21,8 +51,8 @@ graph TD
         NameSearch
     end
     subgraph schedule
-        CreateTask-->Schedule-->DistributeTask-->NameSearch
-        RescheduleTask-->Schedule
+        CreateTask-->Task
+        RescheduleTask-->Task
     end
   end
   subgraph service
