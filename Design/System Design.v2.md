@@ -55,7 +55,7 @@ graph TD
   end
   subgraph service
     selfRegister-->RegisterService
-    Scheduler--Meta-->Filter--Task-->CreateTask
+    Subscribe--Message-->Scheduler--Meta-->Filter--Task-->CreateTask
     Scheduler--Task-->Grabber
     Scheduler--Task-->Parser
     Scheduler--Task-->Worker
