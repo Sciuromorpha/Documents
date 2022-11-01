@@ -10,7 +10,7 @@
 
 This repo contains every design detail about this project.
 
-Default language used in this project is zh_CN, and other language document will got `.i18n` suffix.
+Default language used in this project is `zh_CN` , and other language document will got `.i18n` suffix.
 
 # 松鼠工具集文档仓库
 
