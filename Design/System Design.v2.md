@@ -10,7 +10,7 @@ graph LR
     Meta-. Ref .->Document
     Task
   end
-  subgraph SubService
+  subgraph Sub Service
     Grabber-->Document
     Document-->Parser-->Meta
     Meta-->Filter-->Task-->Scheduler
@@ -20,12 +20,12 @@ graph LR
   end
 ```
 
-1. 系统基本存储/检索单位为 `元数据` (Meta) ，它是一个将 `原始资料` （Document)（HTML/DOC/PDF/IMAGE/VIDEO/...) 经过系统处理、解析、摘要之后生成的一份 Key/Value 字典；
+1. 系统由 `Core` 服务和可扩充的 `Sub Service`(下文简称 `Service`)共同组成；
+1. 系统基本存储/检索单位为 `元数据` (Meta) ，它是一个将 `原始资料` （Document)（HTML/DOC/PDF/IMAGE/VIDEO/...) 经过 `Service` 处理、解析、摘要之后生成的一份 Key/Value 字典；
 2. `Meta` 数据可以包含其它 `Meta`/`Document` 的关联引用；
-3. `Document` 包含抓取工具对一个 `原始 URL` 的抓取原始结果；
+3. `Document` 是系统存储的从各个来源（含用户上传）获取的原始档案；
 4. 分析工具对 `Document` 进行解析并生成/更新对应的 `Meta` 数据；
-5. 系统由 `Core` 服务和可扩充的 `Sub Service`(下文简称 `Service`)共同工作；
-6. `Core` 负责基本的 `Meta` `Document` 和 `Task` 数据相关服务；
+6. `Core` 负责基本的 `Meta` `Document` 和 `Task` 相关服务；
 7. `Service` 负责根据服务自身设计范围完成子项任务；
 8. `Meta` 、 `Document` 和 `Task` 在创建、 修订、删除等操作前后，会向消息管线发送异步消息，各个 `Service` 可以订阅；
 9. `Task` 集中设计原因：服务之间可以通过该方式进行异步互相调用；同时服务自身可以在升降版本的时候有效管理断点；
@@ -46,9 +46,7 @@ graph TD
         Document-->Access
     end
     subgraph register
-        RegisterService
-        KeepaliveTest
-        NameSearch
+        RegisterService-->ServiceList-->Configure
     end
     subgraph schedule
         CreateTask-->Task
@@ -57,18 +55,16 @@ graph TD
   end
   subgraph service
     selfRegister-->RegisterService
-    subgraph filter
-        Subscribe--Meta-->Filter--Task-->CreateTask
-    end
-    subgraph worker
-        DistributeTask--Task-->Worker
-        Worker--Meta-->Create
-        Worker--Meta-->Update
-        Worker--Meta-->Merge
-        Worker--Task-->CreateTask
-        Worker--Task-->RescheduleTask
-        Worker--Document-->Write
-    end
+    Scheduler--Meta-->Filter--Task-->CreateTask
+    Scheduler--Task-->Grabber
+    Scheduler--Task-->Parser
+    Scheduler--Task-->Worker
+    Parser--Meta-->Create
+    Parser--Meta-->Update
+    Parser--Meta-->Merge
+    Worker--Task-->CreateTask
+    Worker--Task-->RescheduleTask
+    Grabber--Document-->Write
   end
 ```
 
@@ -78,20 +74,24 @@ graph TD
 1. Meta 是一个经过各个 Worker 处理后，可以检索的 Key/Value 字典；
 1. Document 是原始获取的内容（文本/媒体/等）；
 2. 每个 Document 必然有至少一个对应的 Meta 数据来描述其内容摘要；
-3. Meta 可以互相关联，来表述其从属关系；
+3. Meta 可以互相关联，来表述其引用关系；
 
 ## Task & Schedule
 
-1. Task 是 Worker 处理的最小事务；Task 主要参数： Worker(Group)/Meta ID(Nullable)/Task Name(Route)/Task Params（使用二进制方式存储，并按照原始内容传递）；
+1. Task 是 Worker 处理的最小事务；
+2. Task 主要参数： Worker(Group)/Meta ID(Nullable)/Task Name(Route)/Task Params（使用二进制方式存储，并按照原始内容传递）；
 2. Task 可以从 Meta Insert/Update/Select 等操作中生成；其中 Meta Insert/Update 会通过消息管线实时广播，而 Meta Select 可以通过 API 查询后批量处理；
 3. Schedule 可以通过排期生成对应 Task；
 
 ## Worker & Service
 
-3. 一个 Service 是 squirrel 里的一组扩充服务，常见包括以下组件：
-1. 一个 Worker 代表一个实际进行 Meta 相关 Document获取/解析/筛选 等事务的 Exectuable (服务/进程/线程/函数/etc)；
+1. 一个 Service 是一组工具集合，可以包含下列部分或全部功能的 Worker；
+1. 一个 Worker 代表一个实际进行事务的 Exectuable (服务/进程/线程/函数/etc)；
+3. Register 注册服务端点及报告服务状态；
 2. Filter 负责订阅消息过滤和 Task 生成；
-3. Register 注册服务端点及相关参数；
+4. Grabber 一般负责原始文档的获取；
+5. Parser 一般负责解析原始文档，生成 Meta；
+6. 
 
 # 核心组件(Core)
 
