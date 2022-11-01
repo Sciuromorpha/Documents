@@ -117,7 +117,7 @@ Schedule 负责 Task 相关事务：
 
 Register 负责 Service 相关事务：
 
-1. Service Register;
+1. Service Register；
 3. Service Name Search / Poll；
 2. Service Route；
 4. Service keepalive test；
