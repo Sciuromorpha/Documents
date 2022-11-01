@@ -36,20 +36,20 @@ graph LR
 graph TD
   subgraph Core
     subgraph meta
-        Create--Meta-->Meta-->Publish
+        Create--Meta-->Meta-->MetaMessage[Meta Message]
         Update--Meta-->Meta
         Merge--Meta-->Meta
         Meta-->Query
     end
     subgraph storage
-        Write-->Document
+        Write-->Document-->DocumentMessage[Document Message]
         Document-->Access
     end
     subgraph register
         RegisterService-->ServiceList-->Configure
     end
     subgraph schedule
-        CreateTask-->Task
+        CreateTask-->Task-->TaskMessage[Task Message]
         RescheduleTask-->Task
     end
   end
