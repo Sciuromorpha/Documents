@@ -20,5 +20,5 @@ Default language used in this project is `zh_CN` , and other language document w
 
 # Folder Tree / 文档目录
 
-* [Design](/Design/) 目录包括了所有系统及部件的设计文档，为了方便查阅可能会保留 `version` 后缀以便理解版本变迁过程；
-* `Note` 目录包括了设计系统时候做的测试及相关笔记；
+* [Design](Design/) 目录包括了所有系统及部件的设计文档，为了方便查阅可能会保留 `version` 后缀以便理解版本变迁过程；
+* [Note](Note/) 目录包括了设计系统时候做的测试及相关笔记；
