@@ -93,11 +93,11 @@ graph TD
 5. Parser 一般负责解析原始文档，生成 Meta；
 6. 
 
-# 核心组件(Core)
+# 核心组件（Core）
 
-## Meta
+## Index
 
-负责 Meta 相关事务：
+Index 负责 Meta 相关事务：
 
 1. 存储/更新 Meta 数据；
 2. 分发 Meta 消息；
@@ -113,6 +113,15 @@ Schedule 负责 Task 相关事务：
 4. （定期）清理 Task 列表；
 5. Task 调度/查询 接口；
 
+## Storage
+
+Storage 负责 Document 相关事务：
+
+1. 存储 Document, 给出读入路径；
+2. 批量 Document 事务操作；
+3. 归档 Document ，同时不改变读入路径；
+4. 去重、合并、更新 Document；
+
 ## Register
 
 Register 负责 Service 相关事务：
@@ -121,3 +130,16 @@ Register 负责 Service 相关事务：
 3. Service Name Search / Poll；
 2. Service Route；
 4. Service keepalive test；
+
+# 服务组件（Service）
+
+服务的核心在于调度器 `Scheduler` ，在服务器初始化完成后，通过调用 `Core` 的 `Schedule API` 来获取 Task 状态并分配给各个 `Worker` 执行。
+
+每个服务可以是一组有近似功能的 Worker 集合，或者针对某类文档/某个站点/某种协议的工具集合。
+
+举例：
+
+* `Hash Service` 包装各种 `Hash` 算法的工具集，可以给 `Document` 生成对应的 `Hash` 合并入 `Meta` 里；
+* `Image Hash` 则是针对图像内容进行摘要的服务，可以对图像类别的 `Document` 生成摘要合并到 `Meta` 中，同时提供近似摘要文档查询功能；
+* `Image Recognition` 包装图片识别AI，可以对图像类别的 `Document` 进行分析并生成 `Tag` 合并到 `Meta` 中；
+* `Twitter` 则是包装完整 `Twitter API` 的工具集，针对包含 `twitter.com` 的 `Meta` 进行数据抓取和分析；
