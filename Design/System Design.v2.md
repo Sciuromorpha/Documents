@@ -91,7 +91,6 @@ graph TD
 2. Filter 负责订阅消息过滤和 Task 生成；
 4. Grabber 一般负责原始文档的获取；
 5. Parser 一般负责解析原始文档，生成 Meta；
-6. 
 
 # 核心组件（Core）
 
@@ -133,9 +132,12 @@ Register 负责 Service 相关事务：
 
 # 服务组件（Service）
 
-服务的核心在于调度器 `Scheduler` ，在服务器初始化完成后，通过调用 `Core` 的 `Schedule API` 来获取 Task 状态并分配给各个 `Worker` 执行。
+* 服务的核心在于调度器 `Scheduler` ，在服务器初始化完成后，通过调用 `Core` 的 `Schedule API` 来获取 Task 状态并分配给各个 `Worker` 执行；
 
-每个服务可以是一组有近似功能的 Worker 集合，或者针对某类文档/某个站点/某种协议的工具集合。
+* 每个服务可以是一组有近似功能的 Worker 集合，或者针对某类文档/某个站点/某种协议的工具集合；
+
+* `Grabber/Parser/Filter` 等都是 `Worker` 的衍生，并不是必须的；
+
 
 举例：
 
