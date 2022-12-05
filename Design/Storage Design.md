@@ -2,13 +2,14 @@
 
 Basic idea: every micro service will share a root volume/mount point.
 
-* `storage root path` will be a config section;
-* `relative path` will be storaged in metadata;
-* `service path` and `service managed path` will be extra keys in `document` metadata section;
+* `storage path` will be a config section and auto convert to absolute path.
+* `service path` will be calatued by the `service meta` and returned as absolute path.
+* `relative path` will be storaged in metadata `url` as `relative://relative/path/...` ;
+* `service relative path` and `service managed path` will be extra keys in `document` metadata section;
 
 ```
 |                                full/absolute path                               |
-|       storage path     |                  meta relative path                    |
+|       storage path     |                    relative path                       |
 |                service path                 |        service managed path       |
 |       storage path     |  service relative  |  service managed path | files...  |
 /data/save/volume/or/path/service/meta/context/service/managed/subpath/filename.ext
