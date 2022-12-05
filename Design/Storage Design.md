@@ -7,11 +7,11 @@ Basic idea: every micro service will share a root volume/mount point.
 * `service path` and `service managed path` will be extra keys in `document` metadata section;
 
 ```
-|                             full/absolute path                             |
-|    storage root path   |                   relative path                   |
-|         service working path           |        service managed path       |
-|    storage root path   | service path  |  service managed path | files...  |
-/data/save/volume/or/path/service/context/service/managed/subpath/filename.ext
+|                                full/absolute path                               |
+|       storage path     |                  meta relative path                    |
+|                service path                 |        service managed path       |
+|       storage path     |  service relative  |  service managed path | files...  |
+/data/save/volume/or/path/service/meta/context/service/managed/subpath/filename.ext
 ```
 
 For grabber workers, it will ask Storage service and get their "service working path" folder, and manage subfolder themselfs, report downloaded files' metadata to meta service.
