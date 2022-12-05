@@ -14,11 +14,11 @@ Basic idea: every micro service will share a root volume/mount point.
 /data/save/volume/or/path/service/meta/context/service/managed/subpath/filename.ext
 ```
 
-For grabber workers, it will ask Storage service and get their "service working path" folder, and manage subfolder themselfs, report downloaded files' metadata to meta service.
+For grabber workers, it will ask Storage service and get their "service path" folder, and manage subfolder themselfs, report downloaded file's relative path to meta service.
 
-For parse workers, it need to ask Storage service for the metadata "real path", and try to read the file depended and update the metadata.
+For parse workers, it need to ask Storage service for the metadata "full path", and try to read the file depended and update the metadata.
 
-To import files already downloaded, the scanner worker will try to read every file/folder and generate metadata for indexing.
+To import files already downloaded, the scanner worker will try to copy/link file/folder to storage path, then read every file/folder info and generate metadata for indexing.
 
     IMPORTANT: If these microservers running in different containers, need ensure that the "data storage volume" are shred between containers and mounted to the same mountpoint. Otherwise these workers cannot read/write these files.
 
