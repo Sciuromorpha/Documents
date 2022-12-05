@@ -2,7 +2,19 @@
 
 Basic idea: every micro service will share a root volume/mount point.
 
-For grabber workers, it will ask Storage service and get their "write" folder, and manage the folder struct themselfs, report downloaded files' metadata to meta service.
+* `storage root path` will be a config section;
+* `relative path` will be storaged in metadata;
+* `service path` and `service managed path` will be extra keys in `document` metadata section;
+
+```
+|                             full/absolute path                             |
+|    storage root path   |                   relative path                   |
+|         service working path           |        service managed path       |
+|    storage root path   | service path  |  service managed path | files...  |
+/data/save/volume/or/path/service/context/service/managed/subpath/filename.ext
+```
+
+For grabber workers, it will ask Storage service and get their "service working path" folder, and manage subfolder themselfs, report downloaded files' metadata to meta service.
 
 For parse workers, it need to ask Storage service for the metadata "real path", and try to read the file depended and update the metadata.
 
