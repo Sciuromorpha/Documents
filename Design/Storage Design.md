@@ -17,7 +17,6 @@ Basic idea: every micro service using file/folders served by storage service.
 4. 存储服务自身负责文件的实际存取方式和配置（基于磁盘/NFS/S3 Bucket等等），提供文件的基本三操作，由 Agent 代理给各个微服务；
 5. 被提交文件的文件名最终只会在 Meta 里，与实际读入的文件名毫无关系，除非请求使用原始文件名/相对路径借阅到本地；
 6. 如果需要保持目录结构，则提交整个目录；目录会变成一个 Meta 存在，并引用对应文件的 Meta ID；请求目录时，会根据请求重建其结构，但不会主动放入其中包含的文件，除非请求包含指定文件；
-7. 所有文件均为懒加载，仅在实际请求的时候可能被拷贝/链接/下载到微服务 Cache 目录中，并在微服务销毁/文件读取关闭文件时清理；
 
 微服务上传文件时将会这样计算文件Meta：
 
@@ -56,7 +55,7 @@ graph TD
 
 ## 存储服务模块分割
 
-存储服务分为持有文件的 Storage Service，管理每台服务器缓存的 Storage Agent 和 微服务直接调用的 Storage Client 组成。
+存储服务分为持有文件的 Storage Service 与 微服务直接调用的 Storage Client 组成。
 
 ### Storage Service 
 
@@ -66,13 +65,8 @@ Storage Service 均可选择自身存储/读取文件的方式，但务必保持
 Storage Service 应该使用自己的额外存储（数据库/服务/文件/etc）来记录被提交文件在自身内部存储位置，而非提交到文件 Meta。
 Storage Service 应该明确自身对于访问某一Meta对应文件的实际消耗（磁盘、网络、延迟等），消耗越高则Agent使用优先级越低；
 
-### Storage Agent
-
-在每个部署环境里，只要有文件存取需求，就需要部署 Agent 服务，以便直接从各个 Storage Service 里获取文件；
-Agent 服务将管理一个本地缓存，微服务所需文件如果命中缓存则将略过 Storage Service 请求直接返回；
-
 ### Storage Client
 
-微服务使用的 Storage Client 来与 Storage Service 进行交互，进而获得文件本身。 
-Client 本身仅维护当前微服务Cache目录下文件内容。
-Client 将文件操作请求提交给 Agnet ，由 Agent 再根据配置请求 Service 或者直接短路回复给 Client。
+微服务使用的 Storage Client 来进行文件的 提交/借阅/删除 操作；
+Client 需维护当前微服务 Cache 目录下存放的文件内容，并根据需要进行清理；
+Client 应尽可能使用消耗最低的 Storage 服务（最佳实践：本地）来进行文件操作；
