@@ -42,7 +42,7 @@ Basic idea: every micro service using file/folders served by storage service.
 
 ```mermaid
 graph TD
-  GenerateTempFolder--Service Context-->GenerateTempFolder-->ReturnFullTempPath
+  GenerateTempFolder--Service Context-->CreateTempFolder-->ReturnFullTempPath
   WriteFileToTempFolder--Service Meta-->CommitFile/Folder-->GenerateMetaFromFile/Folder-->MoveFileToStorageZone-->Merge&WriteMeta
 ```
 
