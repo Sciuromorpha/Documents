@@ -4,7 +4,7 @@
 
 存储服务的元数据结构：
 
-```Json
+```json
 {
   "storage":{
     "filename": "提交到存储服务的文件夹名/文件名.后缀",
@@ -24,11 +24,10 @@
       "commit_time":"该文件提交时间戳，ISO时间格式，UTC",
       "length": "文件尺寸/Folder Meta 尺寸",
       "access": {
-        "mode": "rwxr-xr-x",
-        "status": "",
-        "owner": "",
-        "group": ""
+        "allow": ["*"],
+        "forbid": [],
       },
+      "service": ["当前已经完成该文档归档的Storage Service名称", "..."]
     }
   }
 }
@@ -54,6 +53,8 @@
   FilePath：Storage 可读写的绝对路径；
   RelativeRoot: （可选）相对根路径，Storage会以此为起点计算 relative_path 
   Meta：与文件相关的Meta data；注意 storage 节会被 Storage 服务覆盖。
+
+注意：相对根路径必须是提交文件路径的父文件夹，否则将会忽略。
 
 返回：
   Meta： 包含 Storage 服务扫描后合并的完整 Meta数据（含ID、Hash等）
@@ -83,7 +84,7 @@
 
 ## ReleaseFile
 
-归还借阅的文件到 Storage
+归还借阅的文件
 
 参数：
   Meta： 可以仅包含 Meta ID，抑或是 Storage 生成 Meta 中可索引部分（相对路径/文件名/Hash等）
@@ -100,7 +101,7 @@
 
 ## ReleaseFolder
 
-归还借阅的文件夹到 Storage
+归还借阅的文件夹
 
 注意：会递归解除该文件夹及其下所有子文件夹/文件的引用，无论是否由 Storage 准备。
 
